@@ -1,0 +1,25 @@
+.link-box {
+    display: block;
+    padding: 15px;
+    text-align: center;
+    background-color: #e0e0e0;
+    color: #000;
+    text-decoration: none;
+    margin-bottom: 10px;
+}
+
+.link-box:visited {
+    color: purple;
+}
+
+.link-box:hover {
+    background-color: #cccccc;
+}
+
+.link-box:active {
+    color: red;
+}
+
+h1 {
+    color: darkblue;
+}
