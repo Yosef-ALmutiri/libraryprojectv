@@ -13,4 +13,9 @@ urlpatterns = [
     path('html5/tables/', views.tables_page, name='books.tables_page'),
 
     path('search/', views.search_books, name='books.search'),
+    
+    path('simple/', views.search_books, name='books.search'),
+
+    path('simple/query/', views.simple_query, name='books.simple_query'),
+    path('complex/query/', views.complex_query, name='books.complex_query'),
 ]
