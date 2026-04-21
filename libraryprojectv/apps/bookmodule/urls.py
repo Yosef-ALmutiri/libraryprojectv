@@ -19,11 +19,11 @@ urlpatterns = [
     path('simple/query/', views.simple_query, name='books.simple_query'),
     path('complex/query/', views.complex_query, name='books.complex_query'),
 
-    path('lab8/task1/', views.task1, name='task1'),
-    path('lab8/task2/', views.task2, name='task2'),
-    path('lab8/task3/', views.task3, name='task3'),
-    path('lab8/task4/', views.task4, name='task4'),
-    path('lab8/task5/', views.task5, name='task5'),
+    path('task1/', views.task1, name='task1'),
+    path('task2/', views.task2, name='task2'),
+    path('task3/', views.task3, name='task3'),
+    path('task4/', views.task4, name='task4'),
+    path('task5/', views.task5, name='task5'),
     
-    path('lab8/task7/', views.task7, name='task7'),
+    path('task7/', views.task7, name='task7'),
 ]
