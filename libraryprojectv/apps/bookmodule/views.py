@@ -1,33 +1,41 @@
 from django.shortcuts import render
 from .models import Book
-from django.db.models import Q
-from django.db.models import Count, Sum, Avg, Max, Min
-from .models import Address 
+from .models import Address
+from django.db.models import Count, Sum, Avg, Min, Max, Q
+from .models import Book, Publisher
 
 
 def index(request):
     return render(request, "bookmodule/index.html")
 
+
 def list_books(request):
     return render(request, "bookmodule/list_books.html")
+
 
 def viewbook(request, bookId):
     return render(request, "bookmodule/one_book.html")
 
+
 def aboutus(request):
     return render(request, "bookmodule/aboutus.html")
+
 
 def links_page(request):
     return render(request, "bookmodule/links.html")
 
+
 def formatting_page(request):
     return render(request, "bookmodule/formatting.html")
+
 
 def listing_page(request):
     return render(request, "bookmodule/listing.html")
 
+
 def tables_page(request):
     return render(request, "bookmodule/tables.html")
+
 
 def __getBooksList():
     book1 = {
@@ -70,43 +78,153 @@ def search_books(request):
 
     return render(request, "bookmodule/search.html")
 
+
 def simple_query(request):
-    mybooks = Book.objects.filter(title__icontains='Book') 
-    return render(request, 'bookmodule/bookList.html', {'books': mybooks})
+    mybooks = Book.objects.filter(title__icontains="Book")
+    return render(request, "bookmodule/bookList.html", {"books": mybooks})
+
 
 def complex_query(request):
-    mybooks =books= Book.objects.filter(author__isnull = False).filter(title__icontains ='and').filter(edition__gte = 2).exclude(price__lte = 100)[:10]
+    mybooks = books = (
+        Book.objects.filter(author__isnull=False)
+        .filter(title__icontains="and")
+        .filter(edition__gte=2)
+        .exclude(price__lte=100)[:10]
+    )
 
     if len(mybooks) >= 1:
-        return render(request, 'bookmodule/bookList.html', {'books': mybooks})
+        return render(request, "bookmodule/bookList.html", {"books": mybooks})
     else:
-        return render(request, 'bookmodule/index.html')
-     
+        return render(request, "bookmodule/index.html")
+
+
 def task1(request):
     books = Book.objects.filter(Q(price__lte=80))
-    return render(request, 'bookmodule/bookList.html', {'books': books})
+    return render(request, "bookmodule/bookList.html", {"books": books})
+
 
 def task2(request):
-    books = Book.objects.filter(Q(edition__gt=3) & (Q(title__icontains='qu') | Q(author__icontains='qu')))
-    return render(request, 'bookmodule/bookList.html', {'books': books})
+    books = Book.objects.filter(
+        Q(edition__gt=3) & (Q(title__icontains="qu") | Q(author__icontains="qu"))
+    )
+    return render(request, "bookmodule/bookList.html", {"books": books})
+
 
 def task3(request):
-    books = Book.objects.filter(~Q(edition__gt=3) & ~(Q(title__icontains='qu') | Q(author__icontains='qu')))
-    return render(request, 'bookmodule/bookList.html', {'books': books})
+    books = Book.objects.filter(
+        ~Q(edition__gt=3) & ~(Q(title__icontains="qu") | Q(author__icontains="qu"))
+    )
+    return render(request, "bookmodule/bookList.html", {"books": books})
+
 
 def task4(request):
-    books = Book.objects.all().order_by('title')
-    return render(request, 'bookmodule/bookList.html', {'books': books})
+    books = Book.objects.all().order_by("title")
+    return render(request, "bookmodule/bookList.html", {"books": books})
+
 
 def task5(request):
     stats = Book.objects.aggregate(
-        total_books=Count('id'),
-        total_price=Sum('price'),
-        avg_price=Avg('price'),
-        max_price=Max('price'),
-        min_price=Min('price'))
-    return render(request, 'bookmodule/task5.html', {'stats': stats})
+        total_books=Count("id"),
+        total_price=Sum("price"),
+        avg_price=Avg("price"),
+        max_price=Max("price"),
+        min_price=Min("price"),
+    )
+    return render(request, "bookmodule/task5.html", {"stats": stats})
+
 
 def task7(request):
-    cities_stats = Address.objects.annotate(student_count=Count('student'))
-    return render(request, 'bookmodule/task7.html', {'cities_stats': cities_stats})
+    cities_stats = Address.objects.annotate(student_count=Count("student"))
+    return render(request, "bookmodule/task7.html", {"cities_stats": cities_stats})
+
+
+# lab9
+def task1_lab9(request):
+    total_qty = Book.objects.aggregate(total=Sum("quantity"))["total"] or 1
+    books = Book.objects.all()
+    results = []
+    for book in books:
+        percentage = round((book.quantity / total_qty) * 100, 2)
+        results.append(
+            f"Book: {book.title} | Quantity: {book.quantity} | Availability: {percentage}%"
+        )
+    return render(
+        request,
+        "bookmodule/lab9_tasks.html",
+        {"title": "Task 1: Percentage Availability", "results": results},
+    )
+
+
+def task2_lab9(request):
+    publishers = Publisher.objects.annotate(total_stock=Sum("book__quantity"))
+    results = [
+        f"Publisher: {p.name} | Total Book Stock: {p.total_stock or 0}"
+        for p in publishers
+    ]
+    return render(
+        request,
+        "bookmodule/lab9_tasks.html",
+        {"title": "Task 2: Publishers & Total Stock", "results": results},
+    )
+
+
+def task3_lab9(request):
+    publishers = Publisher.objects.annotate(oldest_book=Min("book__pubdate"))
+    results = [
+        f"Publisher: {p.name} | Oldest Book Date: {p.oldest_book}" for p in publishers
+    ]
+    return render(
+        request,
+        "bookmodule/lab9_tasks.html",
+        {"title": "Task 3: Publishers & Oldest Book", "results": results},
+    )
+
+
+def task4_lab9(request):
+    publishers = Publisher.objects.annotate(
+        avg_price=Avg("book__price"),
+        min_price=Min("book__price"),
+        max_price=Max("book__price"),
+    )
+    results = [
+        f"Publisher: {p.name} | Avg Price: {p.avg_price} | Min: {p.min_price} | Max: {p.max_price}"
+        for p in publishers
+    ]
+    return render(
+        request,
+        "bookmodule/lab9_tasks.html",
+        {"title": "Task 4: Prices Stats per Publisher", "results": results},
+    )
+
+
+def task5_lab9(request):
+    publishers = Publisher.objects.annotate(
+        high_rated_count=Count("book", filter=Q(book__rating__gte=4))
+    )
+    results = [
+        f"Publisher: {p.name} | Highly Rated Books Count: {p.high_rated_count}"
+        for p in publishers
+    ]
+    return render(
+        request,
+        "bookmodule/lab9_tasks.html",
+        {"title": "Task 5: Highly Rated Books Count", "results": results},
+    )
+
+
+def task6_lab9(request):
+    publishers = Publisher.objects.annotate(
+        filtered_count=Count(
+            "book",
+            filter=Q(book__price__gt=50, book__quantity__gte=1, book__quantity__lt=5),
+        )
+    )
+    results = [
+        f"Publisher: {p.name} | Filtered Books Count: {p.filtered_count}"
+        for p in publishers
+    ]
+    return render(
+        request,
+        "bookmodule/lab9_tasks.html",
+        {"title": "Task 6: Filtered Books Count", "results": results},
+    )
