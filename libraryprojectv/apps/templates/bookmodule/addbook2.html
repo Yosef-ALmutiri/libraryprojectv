@@ -1,0 +1,10 @@
+{% extends "layouts/base.html" %}
+{% block title %} Add Book (Part 2) {% endblock %}
+{% block content %}
+<h2>Add a New Book (Django Forms)</h2>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }} <button type="submit" style="padding: 10px; background-color: blue; color: white;">Save Book</button>
+    <a href="{% url 'listbooks2' %}" style="margin-left: 10px;">Cancel</a>
+</form>
+{% endblock %}
